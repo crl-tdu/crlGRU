@@ -7,12 +7,11 @@
 #include <unordered_map>
 #include <functional>
 
-namespace crl {
-namespace gru {
+namespace crlgru {
 
 /**
  * @brief Free Energy Principle based GRU cell for embodied swarm intelligence
- * 
+ *
  * This implementation extends standard GRU with:
  * - Real-time parameter modification for mutual imitation
  * - Internal state extraction for SOM (Self-Organizing Map)
@@ -27,17 +26,17 @@ public:
         int hidden_size = 128;
         bool bias = true;
         double dropout = 0.0;
-        
+
         // FEP specific parameters
         double free_energy_weight = 1.0;
         double prediction_horizon = 10.0;
         double variational_beta = 1.0;
-        
+
         // Imitation learning parameters
         double imitation_rate = 0.1;
         double trust_radius = 5.0;
         bool enable_hierarchical_imitation = true;
-        
+
         // SOM integration
         bool enable_som_extraction = true;
         int som_grid_size = 16;
@@ -46,7 +45,7 @@ public:
 
 private:
     Config config_;
-    
+
     // Standard GRU parameters
     torch::nn::Linear input_to_hidden_{nullptr};
     torch::nn::Linear hidden_to_hidden_{nullptr};
@@ -54,83 +53,83 @@ private:
     torch::nn::Linear hidden_to_reset_{nullptr};
     torch::nn::Linear input_to_update_{nullptr};
     torch::nn::Linear hidden_to_update_{nullptr};
-    
+
     // FEP specific layers
     torch::nn::Linear prediction_head_{nullptr};
     torch::nn::Linear variance_head_{nullptr};
     torch::nn::Linear meta_evaluation_head_{nullptr};
-    
+
     // Internal state management
     torch::Tensor hidden_state_;
     torch::Tensor prediction_error_;
     torch::Tensor free_energy_;
-    
+
     // Imitation learning storage
     std::unordered_map<int, torch::Tensor> peer_parameters_;
     std::unordered_map<int, double> peer_performance_;
     std::unordered_map<int, double> peer_trust_;
-    
+
     // SOM related
     torch::Tensor som_weights_;
     torch::Tensor som_activation_history_;
 
 public:
     explicit FEPGRUCell(const Config& config);
-    
+
     /**
      * @brief Forward pass with predictive coding
      * @param input Input tensor [batch_size, input_size]
      * @param hidden Previous hidden state [batch_size, hidden_size]
      * @return Tuple of (new_hidden, prediction, free_energy)
      */
-    std::tuple<torch::Tensor, torch::Tensor, torch::Tensor> 
+    std::tuple<torch::Tensor, torch::Tensor, torch::Tensor>
     forward(const torch::Tensor& input, const torch::Tensor& hidden = {});
-    
+
     /**
      * @brief Compute variational free energy
      */
-    torch::Tensor compute_free_energy(const torch::Tensor& prediction, 
+    torch::Tensor compute_free_energy(const torch::Tensor& prediction,
                                     const torch::Tensor& target,
-                                    const torch::Tensor& variance);
-    
+                                    const torch::Tensor& variance) const;
+
     /**
      * @brief Real-time parameter modification for imitation learning
      */
-    void update_parameters_from_peer(int peer_id, 
+    void update_parameters_from_peer(int peer_id,
                                    const std::unordered_map<std::string, torch::Tensor>& peer_params,
                                    double peer_performance);
-    
+
     /**
      * @brief Hierarchical imitation at three levels
      */
     void hierarchical_imitation_update(int best_peer_id);
-    
+
     /**
      * @brief Extract internal state for SOM
      */
     torch::Tensor extract_som_features() const;
-    
+
     /**
      * @brief Update SOM based on current internal state
      */
     void update_som(const torch::Tensor& input_pattern);
-    
+
     /**
      * @brief Get current meta-evaluation score
      */
     double get_meta_evaluation() const;
-    
+
     /**
      * @brief Reset internal states
      */
     void reset_states();
-    
+
     // Getters
     const torch::Tensor& get_hidden_state() const { return hidden_state_; }
     const torch::Tensor& get_prediction_error() const { return prediction_error_; }
     const torch::Tensor& get_free_energy() const { return free_energy_; }
     const torch::Tensor& get_som_weights() const { return som_weights_; }
-    
+
     // Configuration
     const Config& get_config() const { return config_; }
     void set_config(const Config& config) { config_ = config; }
@@ -153,35 +152,35 @@ private:
     NetworkConfig config_;
     std::vector<std::shared_ptr<FEPGRUCell>> layers_;
     torch::nn::Dropout dropout_{nullptr};
-    
+
     // Multi-agent coordination
     std::unordered_map<int, std::vector<torch::Tensor>> agent_states_;
     std::unordered_map<int, double> agent_performance_history_;
 
 public:
     explicit FEPGRUNetwork(const NetworkConfig& config);
-    
+
     /**
      * @brief Process sequence with multi-layer FEP-GRU
      */
     std::tuple<torch::Tensor, torch::Tensor, torch::Tensor>
     forward(const torch::Tensor& sequence);
-    
+
     /**
      * @brief Multi-agent parameter sharing and imitation
      */
     void share_parameters_with_agents(const std::vector<int>& agent_ids);
-    
+
     /**
      * @brief Collective free energy minimization
      */
     torch::Tensor compute_collective_free_energy() const;
-    
+
     /**
      * @brief Get layer-wise SOM features
      */
     std::vector<torch::Tensor> extract_multi_layer_som_features() const;
-    
+
     // Agent management
     void register_agent(int agent_id, double initial_performance = 0.0);
     void update_agent_performance(int agent_id, double performance);
@@ -341,7 +340,6 @@ namespace utils {
     load_parameters(const std::string& filename);
 } // namespace utils
 
-} // namespace gru
-} // namespace crl
+} // namespace crlgru
 
 #endif // CRL_GRU_HPP

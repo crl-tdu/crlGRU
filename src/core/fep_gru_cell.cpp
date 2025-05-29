@@ -3,8 +3,7 @@
 #include <random>
 #include <algorithm>
 
-namespace crl {
-namespace gru {
+namespace crlgru {
 
 FEPGRUCell::FEPGRUCell(const Config& config) : config_(config) {
     // Initialize standard GRU layers
@@ -86,7 +85,7 @@ FEPGRUCell::forward(const torch::Tensor& input, const torch::Tensor& hidden) {
 
 torch::Tensor FEPGRUCell::compute_free_energy(const torch::Tensor& prediction, 
                                             const torch::Tensor& target,
-                                            const torch::Tensor& variance) {
+                                            const torch::Tensor& variance) const {
     // Variational free energy: F = KL[q(x)||p(x|y)] + H[p(y)]
     // Simplified as: prediction error + complexity penalty
     
@@ -252,5 +251,4 @@ void FEPGRUCell::reset_states() {
     }
 }
 
-} // namespace gru
-} // namespace crl
+} // namespace crlgru
