@@ -40,7 +40,9 @@ bool test_fep_gru_network_forward() {
         
         assert(predictions.size(0) == 1);
         assert(predictions.size(1) == 10);
-        assert(predictions.size(2) == 32);
+        // Final layer predicts to its input size (which is the previous layer's hidden size)
+        // For layer_sizes = {32, 64, 32}, final layer input_size = 64
+        assert(predictions.size(2) == 64); // Not 32, but 64!
         
         assert(free_energies.size(0) == 1);
         assert(free_energies.size(1) == 10);

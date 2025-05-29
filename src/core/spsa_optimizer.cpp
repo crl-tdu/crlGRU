@@ -12,8 +12,11 @@ torch::Tensor SPSAOptimizer::optimize(torch::Tensor& parameters,
                                     std::function<double(const torch::Tensor&)> objective_function) {
     auto current_params = parameters.clone();
     double current_objective = objective_function(current_params);
+    double prev_objective = current_objective;
     
     for (int iter = 0; iter < config_.max_iterations; ++iter) {
+        prev_objective = current_objective;
+        
         // Estimate gradient
         auto gradient = estimate_gradient(current_params, objective_function);
         
@@ -25,18 +28,12 @@ torch::Tensor SPSAOptimizer::optimize(torch::Tensor& parameters,
                               (1.0 - config_.gradient_smoothing) * gradient;
         }
         
-        // Update parameters
-        auto new_params = current_params + config_.learning_rate * gradient_estimate_;
-        double new_objective = objective_function(new_params);
-        
-        // Accept if improvement
-        if (new_objective > current_objective) {
-            current_params = new_params;
-            current_objective = new_objective;
-        }
+        // Update parameters (always update in SPSA)
+        current_params = current_params + config_.learning_rate * gradient_estimate_;
+        current_objective = objective_function(current_params);
         
         // Check convergence
-        if (std::abs(new_objective - current_objective) < config_.tolerance) {
+        if (std::abs(current_objective - prev_objective) < config_.tolerance) {
             break;
         }
         
@@ -66,8 +63,8 @@ torch::Tensor SPSAOptimizer::estimate_gradient(const torch::Tensor& parameters,
     double f_plus = objective_function(params_plus);
     double f_minus = objective_function(params_minus);
     
-    // Estimate gradient using finite differences
-    auto gradient = (f_plus - f_minus) / (2.0 * config_.perturbation_magnitude) * perturbation;
+    // Estimate gradient using finite differences (element-wise)
+    auto gradient = (f_plus - f_minus) / (2.0 * config_.perturbation_magnitude) / perturbation;
     
     return gradient;
 }
