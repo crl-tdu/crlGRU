@@ -16,6 +16,10 @@ target_link_libraries(test_spsa_optimizer crlGRU ${TORCH_LIBRARIES})
 add_executable(test_utils test_utils.cpp)
 target_link_libraries(test_utils crlGRU ${TORCH_LIBRARIES})
 
+# Integration test
+add_executable(test_fep_gru_integration test_fep_gru_integration.cpp)
+target_link_libraries(test_fep_gru_integration crlGRU ${TORCH_LIBRARIES})
+
 # Examples (moved from examples directory)
 add_subdirectory(examples)
 
@@ -27,4 +31,5 @@ add_test(NAME FEPGRUCell COMMAND test_fep_gru_cell)
 add_test(NAME FEPGRUNetwork COMMAND test_fep_gru_network)
 add_test(NAME SPSAOptimizer COMMAND test_spsa_optimizer)
 add_test(NAME Utils COMMAND test_utils)
+add_test(NAME FEPGRUIntegration COMMAND test_fep_gru_integration)
 
