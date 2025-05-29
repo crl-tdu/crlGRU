@@ -1,0 +1,52 @@
+{
+  "fep_gru_config": {
+    "input_size": 64,
+    "hidden_size": 128,
+    "bias": true,
+    "dropout": 0.1,
+    "free_energy_weight": 1.0,
+    "prediction_horizon": 10.0,
+    "variational_beta": 1.0,
+    "imitation_rate": 0.1,
+    "trust_radius": 5.0,
+    "enable_hierarchical_imitation": true,
+    "enable_som_extraction": true,
+    "som_grid_size": 16,
+    "som_learning_rate": 0.01
+  },
+  "network_config": {
+    "layer_sizes": [64, 128, 64],
+    "bidirectional": false,
+    "layer_dropout": 0.1,
+    "sequence_length": 50
+  },
+  "polar_attention_config": {
+    "input_channels": 64,
+    "attention_dim": 32,
+    "num_distance_rings": 8,
+    "num_angle_sectors": 16,
+    "adaptive_resolution": true,
+    "attention_dropout": 0.1
+  },
+  "meta_evaluator_config": {
+    "objective_weights": [1.0, 1.0, 1.0, 1.0],
+    "temporal_discount": 0.95,
+    "evaluation_horizon": 10,
+    "adaptive_weights": true
+  },
+  "spsa_config": {
+    "learning_rate": 0.01,
+    "perturbation_magnitude": 0.1,
+    "gradient_smoothing": 0.9,
+    "max_iterations": 1000,
+    "tolerance": 1e-6
+  },
+  "swarm_config": {
+    "num_agents": 20,
+    "environment_size": [100.0, 100.0],
+    "max_observation_range": 20.0,
+    "communication_range": 15.0,
+    "time_step": 0.1,
+    "max_steps": 1000
+  }
+}
