@@ -43,11 +43,12 @@ endif()
 # Include directories
 include_directories(${CMAKE_SOURCE_DIR}/include)
 
-# Core library
-file(GLOB_RECURSE CORE_SOURCES 
-    "src/core/*.cpp"
-    "src/som/*.cpp"
-    "src/imitation/*.cpp"
+# Core library (ハイブリッドアプローチ: ライブラリコンポーネントのみ)
+# 注意: spsa_optimizer.cpp と utils.cpp はヘッダーオンリー化により除外
+set(CORE_SOURCES 
+    "src/core/fep_gru_cell.cpp"
+    "src/core/fep_gru_network.cpp"
+    "src/core/attention_evaluator.cpp"
 )
 
 add_library(crlGRU SHARED ${CORE_SOURCES})
