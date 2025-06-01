@@ -1,0 +1,1 @@
+docs/prompts/compact/BASELINE_COMPACT.md

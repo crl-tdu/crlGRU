@@ -1,0 +1,1 @@
+docs/prompts/core/CURRENT_TASK.md

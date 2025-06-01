@@ -51,9 +51,11 @@ struct FEPGRUNetworkConfig {
 /// @brief PolarSpatialAttention設定構造体
 struct PolarSpatialAttentionConfig {
     int input_channels = 64;                ///< 入力チャンネル数
+    int attention_dim = 32;                 ///< 注意次元数
     int num_distance_rings = 8;             ///< 距離リング数
     int num_angle_sectors = 16;             ///< 角度セクター数
     double max_range = 10.0;                ///< 最大範囲
+    double attention_dropout = 0.0;         ///< 注意ドロップアウト率
     
     // 注意メカニズムのタイプ
     enum AttentionType {
@@ -79,12 +81,16 @@ struct MetaEvaluatorConfig {
     
     // 重み設定
     std::vector<double> initial_weights;    ///< 初期重み
+    std::vector<double> objective_weights = {0.25, 0.25, 0.25, 0.25}; ///< 目的関数重み
     bool adaptive_weights = true;           ///< 適応的重みフラグ
     double weight_adaptation_rate = 0.01;   ///< 重み適応率
     
     // 正規化
     bool normalize_metrics = true;          ///< メトリック正規化フラグ
 };
+
+/// @brief EvaluationConfig型エイリアス（後方互換性）
+using EvaluationConfig = MetaEvaluatorConfig;
 
 /// @brief SPSA最適化器設定構造体
 struct SPSAOptimizerConfig {

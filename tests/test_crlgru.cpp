@@ -245,7 +245,7 @@ namespace crlgru_tests {
     bool test_utils_tensor_mean() {
         try {
             auto tensor = torch::tensor({1.0, 2.0, 3.0, 4.0, 5.0});
-            auto mean = crlgru::utils::tensor_mean(tensor);
+            auto mean = crlgru::utils::compute_tensor_mean(tensor);
             
             return std::abs(mean - 3.0) < 1e-6;
         } catch (const std::exception& e) {

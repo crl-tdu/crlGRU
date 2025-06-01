@@ -122,13 +122,19 @@ public:
                 std::vector<int64_t>(param.sizes().begin(), param.sizes().end())
             );
             
-            param += ck * perturbation;
+            // 元のパラメータ値を保存
+            auto original_param = param.clone();
+            
+            // 正の方向に摂動を加える（in-place操作を避ける）
+            param.copy_(original_param + ck * perturbation);
             auto loss_plus = objective_function();
             
-            param -= 2.0 * ck * perturbation;
+            // 負の方向に摂動を加える（in-place操作を避ける）
+            param.copy_(original_param - ck * perturbation);
             auto loss_minus = objective_function();
             
-            param += ck * perturbation;
+            // 元のパラメータ値に復元
+            param.copy_(original_param);
             
             auto gradient = (loss_plus - loss_minus) / (2.0 * ck) / perturbation;
             gradients.push_back(gradient);
@@ -207,14 +213,16 @@ private:
             
             if (config_.use_momentum && i < momentum_buffers_.size()) {
                 auto& momentum = momentum_buffers_[i];
+                // モメンタムバッファのin-place操作を回避
                 momentum = config_.momentum_beta * momentum + step_size * gradient;
                 update = momentum;
             } else {
                 update = step_size * gradient;
             }
 
-            param -= update;
-            param.clamp_(config_.param_min, config_.param_max);
+            // パラメータ更新のin-place操作を回避
+            auto new_param = param - update;
+            param.copy_(torch::clamp(new_param, config_.param_min, config_.param_max));
         }
     }
 
