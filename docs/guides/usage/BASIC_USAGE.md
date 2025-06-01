@@ -19,7 +19,7 @@ crlGRUは自由エネルギー原理に基づくGRUニューラルネットワ�
 
 ### 1. LibTorchのインストール
 
-詳細は [`LIBTORCH_INSTALLATION_GUIDE.md`](LIBTORCH_INSTALLATION_GUIDE.md) を参照してください。
+詳細は [`../installation/LIBTORCH_SETUP.md`](../installation/LIBTORCH_SETUP.md) を参照してください。
 
 ```bash
 # LibTorchを$HOME/local/libtorchにインストール済みの前提
@@ -355,10 +355,10 @@ torch::cuda::empty_cache(); // GPU使用時
 
 ## 詳細情報とリファレンス
 
-- **API詳細**: [`API_REFERENCE_JP.md`](API_REFERENCE_JP.md)
-- **理論的基盤**: [`THEORETICAL_FOUNDATIONS.md`](THEORETICAL_FOUNDATIONS.md)
-- **開発者向け**: [`DEVELOPMENT_BASELINE_PROMPT.md`](DEVELOPMENT_BASELINE_PROMPT.md)
-- **LibTorchインストール**: [`LIBTORCH_INSTALLATION_GUIDE.md`](LIBTORCH_INSTALLATION_GUIDE.md)
+- **API詳細**: [`../API_REFERENCE.md`](../API_REFERENCE.md)
+- **理論的基盤**: [`../../theory/THEORETICAL_FOUNDATIONS.md`](../../theory/THEORETICAL_FOUNDATIONS.md)
+- **開発者向け**: [`../../prompts/reference/DEVELOPMENT_BASELINE_PROMPT.md`](../../prompts/reference/DEVELOPMENT_BASELINE_PROMPT.md)
+- **LibTorchセットアップ**: [`../installation/LIBTORCH_SETUP.md`](../installation/LIBTORCH_SETUP.md)
 
 ## サンプルプロジェクト
 

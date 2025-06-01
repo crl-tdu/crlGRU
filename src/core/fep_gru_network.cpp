@@ -24,8 +24,8 @@ FEPGRUNetwork::FEPGRUNetwork(const NetworkConfig& config) : config_(config) {
     }
     
     // Dropout layer
-    if (config_.layer_dropout > 0.0) {
-        dropout_ = register_module("dropout", torch::nn::Dropout(config_.layer_dropout));
+    if (config_.dropout_rate > 0.0) {
+        dropout_ = register_module("dropout", torch::nn::Dropout(config_.dropout_rate));
     }
 }
 

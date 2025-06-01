@@ -30,7 +30,7 @@
 
 ## プロジェクト構成
 
-### ディレクトリ構造 ＜2025年6月1日現在・ハイブリッドアプローチ実装完了版＞
+### ディレクトリ構造 ＜2025年6月1日現在・ビルドエラー修正版＞
 ```
 /Users/igarashi/local/project_workspace/crlGRU/        # メインプロジェクトディレクトリ
 ├── CMakeLists.txt                                     # 🔧 ハイブリッドアプローチ対応CMake設定
@@ -49,30 +49,32 @@
 │   ├── crl_gru.hpp                                  # ✅ ハイブリッド統合APIヘッダー
 │   ├── common.hpp                                   # ✅ 共通定義・フォワード宣言
 │   ├── core/                                        # 🔧 ライブラリコンポーネント宣言
-│   │   └── fep_gru_cell.hpp                        # ✅ FEPGRUCell宣言ヘッダー
+│   │   ├── fep_gru_cell.hpp                        # ✅ FEPGRUCell宣言ヘッダー
+│   │   ├── fep_gru_network.hpp                     # ✅ FEPGRUNetwork宣言ヘッダー（新規追加）
+│   │   └── polar_spatial_attention.hpp             # ✅ PolarSpatialAttention・MetaEvaluator宣言（新規追加）
 │   ├── optimizers/                                  # ✅ ヘッダーオンリー最適化器
 │   │   └── spsa_optimizer.hpp                      # ✅ SPSAOptimizer（完全実装）
 │   └── utils/                                       # ✅ ヘッダーオンリーユーティリティ
-│       ├── config_types.hpp                        # ✅ 設定構造体（完全実装）
-│       ├── math_utils.hpp                          # ✅ 数学関数（完全実装）
+│       ├── config_types.hpp                        # ✅ 設定構造体（完全実装・拡張済み）
+│       ├── math_utils.hpp                          # ✅ 数学関数（完全実装・警告修正）
 │       └── spatial_transforms.hpp                  # ✅ 空間変換（完全実装）
-├── src/core/                                          # 💾 ライブラリ実装ファイル（簡素化済み）
-│   ├── attention_evaluator.cpp                      # ✅ 空間注意・メタ評価実装
+├── src/core/                                          # 💾 ライブラリ実装ファイル（修正中）
+│   ├── attention_evaluator.cpp                      # 🔄 空間注意・メタ評価実装（エラー修正中）
 │   ├── fep_gru_cell.cpp                            # ✅ FEP-GRUセル実装
-│   └── fep_gru_network.cpp                         # ✅ FEP-GRUネットワーク実装
+│   └── fep_gru_network.cpp                         # 🔄 FEP-GRUネットワーク実装（部分修正済み）
 ├── tests/                                             # 🧪 テストプログラム群
 │   ├── CMakeLists.txt                              # ✅ テストビルド設定
-│   └── test_crlgru.cpp                             # ✅ 統合テストファイル
+│   └── test_crlgru.cpp                             # ✅ 統合テストファイル（修正完了）
 ├── build/                                             # 🔧 メインビルドディレクトリ（Ninja）
 ├── build_test/                                        # 🔧 テスト用ビルドディレクトリ（Make）
-│   ├── libcrlGRU.dylib                             # ✅ 軽量化ライブラリ
-│   └── tests/test_crlgru                           # ✅ 統合テスト実行ファイル
+├── build_test_new/                                    # 🔧 新規ビルドディレクトリ（エラー修正用）
 ├── debug/                                             # 🔧 デバッグビルドディレクトリ（CLion）
-│   ├── libcrlGRU.dylib                             # ✅ デバッグ版ライブラリ
-│   └── tests/test_fep_gru_cell                     # ✅ 個別テスト実行ファイル
 └── tmp/                                               # 🧪 テスト・実験用ディレクトリ
     ├── backup/                                      # 🔒 完全バックアップ
     ├── test_header_only.cpp                       # ✅ ヘッダーオンリーテスト（11/11成功）
+    ├── test_crlgru_fixed.cpp                      # ✅ 修正版統合テスト
+    ├── test_crlgru_backup.cpp                     # 🔒 元統合テストバックアップ
+    ├── build_fix_progress.sh                      # 📊 修正進捗レポート
     ├── hybrid_implementation_report.md             # 📄 ハイブリッド実装レポート
     └── cleanup_completion_report.md                # 📄 不要ファイル削除完了レポート
 ```
@@ -83,7 +85,7 @@
 - 使用方法ガイド: [`docs/USAGE_GUIDE_JP.md`](docs/USAGE_GUIDE_JP.md)
 - LibTorchインストール: [`docs/LIBTORCH_INSTALLATION_GUIDE.md`](docs/LIBTORCH_INSTALLATION_GUIDE.md)
 
-### ✅ ハイブリッドアプローチ実装完了（2025年6月1日）
+### ✅ ハイブリッドアプローチ実装状況（2025年6月1日更新）
 
 #### **ヘッダーオンリーコンポーネント（完全動作確認済み）**
 - **SPSAOptimizer** (`include/crlgru/optimizers/spsa_optimizer.hpp`)
@@ -94,6 +96,7 @@
 - **Math Utils** (`include/crlgru/utils/math_utils.hpp`)
   - 数値安定化関数（safe_normalize, stable_softmax）
   - テンプレート化テンソル統計関数
+  - **修正完了**: 未使用パラメータ警告解決
   - **テスト結果**: 2/2テスト成功
   
 - **Spatial Transforms** (`include/crlgru/utils/spatial_transforms.hpp`)
@@ -104,85 +107,74 @@
 - **Config Types** (`include/crlgru/utils/config_types.hpp`)
   - 型安全な設定構造体群
   - デフォルト値とバリデーション機能
+  - **拡張完了**: FEPGRUNetworkConfig, PolarSpatialAttentionConfig, MetaEvaluatorConfig追加
   - **テスト結果**: 4/4テスト成功
 
 **ヘッダーオンリー統合テスト**: ✅ **11/11テスト成功（100%成功率）**
 
-#### **ライブラリコンポーネント（実装継続中）**
+#### **ライブラリコンポーネント（ビルド修正中）**
+
+**✅ 完全修正済み:**
 - **FEPGRUCell** (`src/core/fep_gru_cell.cpp`)
-- **FEPGRUNetwork** (`src/core/fep_gru_network.cpp`) 
+  - ヘッダー宣言完成（`include/crlgru/core/fep_gru_cell.hpp`）
+  - torch::nn::Linear初期化問題解決（{nullptr}）
+  - peer_parameters_メンバー変数追加
+  - get_free_energy()関数追加
+
+**🔄 部分修正済み:**
+- **FEPGRUNetwork** (`src/core/fep_gru_network.cpp`)
+  - ヘッダー宣言完成（`include/crlgru/core/fep_gru_network.hpp`）
+  - torch::nn::Dropout初期化問題解決
+  - 設定パラメータ名修正（layer_dropout → dropout_rate）
+  - エージェント管理変数名エイリアス追加
+
+**❌ 修正待ち:**
 - **PolarSpatialAttention** (`src/core/attention_evaluator.cpp`)
+  - ヘッダー宣言完成（`include/crlgru/core/polar_spatial_attention.hpp`）
+  - 実装ファイルの未定義メンバー変数エラー残存
+  - 設定パラメータ不足（attention_dim, attention_dropout等）
+
+#### **テストファイル（修正完了）**
+- **統合テストファイル** (`tests/test_crlgru.cpp`)
+  - SPSAOptimizer<double>テンプレート引数修正
+  - 設定構造体名修正
+  - ヘッダーオンリー機能テスト追加
+  - 段階的テスト構造の実装
 
 #### **削除済み不要ファイル**
 - ~~`src/core/spsa_optimizer.cpp`~~ → ヘッダーオンリー化により削除
 - ~~`src/core/utils.cpp`~~ → ヘッダーオンリー化により削除
 
-### 実装・動作確認済みコンポーネント
+### 🔧 ビルドエラー解決状況（2025年6月1日）
 
-#### ✅ 動作確認済み：FEP-GRU基本機能
-- **FEPGRUCell**: 自由エネルギー計算、予測符号化、SOM特徴抽出、階層的模倣学習
-- **FEPGRUNetwork**: 多層処理、エージェント間パラメータ共有、集合自由エネルギー最小化
-- **PolarSpatialAttention**: 極座標空間注意機構、距離・角度別適応的重み
-- **MetaEvaluator**: 多目的評価、適応的重み調整、目標・衝突・凝集・整列統合
+#### **✅ 解決済みエラー**
+1. **不完全型エラー**: FEPGRUNetwork, PolarSpatialAttention, MetaEvaluatorのヘッダー作成
+2. **テンプレート引数エラー**: SPSAOptimizer<double>明示的テンプレート化
+3. **未定義設定構造体**: NetworkConfig, AttentionConfig, EvaluationConfig追加
+4. **Linear初期化エラー**: torch::nn::Linear{nullptr}による明示的初期化
+5. **設定パラメータ不一致**: layer_dropout → dropout_rate修正
+6. **テストファイル型エラー**: 全テンプレート引数とメンバー変数修正
 
-#### ✅ 統合テスト結果（2025年6月1日）
-- **統合テストファイル**: `tests/test_crlgru.cpp` 
-- **ヘッダーオンリーテスト**: `tmp/test_header_only.cpp` → **11/11テスト成功**
-- **ビルドシステム**: CMake + LibTorch統合、ハイブリッドアプローチ対応
-- **実行確認**: 複数のビルド環境で動作検証済み
+#### **❌ 残存エラー**
+1. **attention_evaluator.cpp**: 
+   - 未定義メンバー変数（distance_attention_, angle_attention_, fusion_layer_）
+   - 不足設定パラメータ（attention_dim, attention_dropout）
+   - ヘッダーと実装の不整合
 
-#### ✅ 完全実装済み：数学的アルゴリズム
-- **自由エネルギー計算**: 解析的KL発散、ガウス分布仮定での効率実装
-- **予測的符号化**: 自己回帰的未来状態予測、予測誤差フィードバック
-- **階層的模倣学習**: 3レベル（パラメータ・ダイナミクス・意図）の統合模倣
-- **極座標変換**: カルテシアン→極座標マップ、リング・セクター分割（ベクトル化最適化）
-- **SPSA勾配推定**: 同時摂動による勾配フリー最適化、ベルヌーイ摂動
-- **SOM特徴抽出**: 自己組織化マップによる内部状態クラスタリング
+2. **fep_gru_network.cpp**: 
+   - エージェント管理変数名の不整合（部分解決済み）
 
-## ハイブリッドアプローチの技術的利点
+#### **🎯 次回修正項目**
+1. PolarSpatialAttentionヘッダーのメンバー変数追加
+2. PolarSpatialAttentionConfig設定パラメータ拡張
+3. attention_evaluator.cpp実装修正
+4. ビルド成功確認とテスト実行
 
-### 🚀 パフォーマンス最適化
-1. **コンパイル時間短縮**: ヘッダーオンリー部分の変更時はライブラリ再ビルド不要
-2. **インライン展開**: 数学関数・空間変換の高速化
-3. **テンプレート最適化**: float/double型特化による数値精度制御
+### 実装状況と技術的詳細
 
-### 🔗 依存関係の柔軟性  
-1. **軽量アプリケーション**: SPSA最適化のみ使用時は`.dylib`不要
-2. **段階的導入**: 必要な機能のみ選択的に使用可能
-3. **クロスプラットフォーム**: ヘッダーオンリー部分は環境依存なし
+#### ✅ ハイブリッドアプローチの実装パターン（確立済み）
 
-### 🧪 開発効率向上
-1. **機能別分離**: utils/, optimizers/, core/ による明確な責任分離
-2. **独立テスト**: ヘッダーオンリー部分の単体テスト可能
-3. **保守性向上**: 機能追加時の影響範囲限定
-
-### 📦 配布・利用の簡便性
-1. **ヘッダーオンリー**: コピー&ペーストで即座に利用可能
-2. **段階的導入**: 基本機能→高度な機能への段階的移行サポート
-3. **バイナリ互換性**: ライブラリ部分のABI安定化
-
-## 理論的枠組み
-
-crlGRUライブラリの数学的基盤については、以下のドキュメントを参照してください：
-
-**📘 [理論的基盤ドキュメント](./THEORETICAL_FOUNDATIONS.md)**
-
-主要な理論要素：
-- **変分自由エネルギー原理**: Karl Fristonの自由エネルギー最小化による適応的学習
-- **階層的模倣学習**: パラメータ・ダイナミクス・意図の3レベル模倣メカニズム  
-- **SPSA最適化**: 同時摂動確率近似による勾配フリー最適化
-- **極座標空間表現**: 生物学的妥当性を持つスワーム空間認識
-- **メタ評価関数**: 多目的統合評価（目標・衝突・凝集・整列）
-- **SOM統合**: 自己組織化マップによる内部状態クラスタリング
-- **予測的符号化**: 階層的予測誤差最小化による未来状態予測
-
-理論の実装における数値安定性や計算複雑度についても詳述されています。
-
-## 実装状況と技術的詳細
-
-### ✅ ハイブリッドアプローチの実装パターン
-
-#### 1. ヘッダーオンリーコンポーネント実装パターン
+**1. ヘッダーオンリーコンポーネント実装パターン**
 ```cpp
 // ✅ 実装例: SPSAOptimizer (include/crlgru/optimizers/spsa_optimizer.hpp)
 template<typename FloatType = double>
@@ -204,7 +196,7 @@ public:
 };
 ```
 
-#### 2. ライブラリコンポーネント実装パターン
+**2. ライブラリコンポーネント実装パターン**
 ```cpp
 // ✅ 実装例: FEPGRUCell 
 // 宣言: include/crlgru/core/fep_gru_cell.hpp
@@ -215,14 +207,19 @@ public:
     explicit FEPGRUCell(const Config& config);
     std::tuple<torch::Tensor, torch::Tensor, torch::Tensor> forward(
         const torch::Tensor& input, const torch::Tensor& hidden);
-    // ... 宣言のみ
+        
+private:
+    // ✅ 修正済み: torch::nn::Linear初期化
+    torch::nn::Linear input_to_hidden_{nullptr};
+    torch::nn::Linear hidden_to_hidden_{nullptr};
+    // ... 他のメンバー変数
 };
 
 // 実装: src/core/fep_gru_cell.cpp
 // 複雑なニューラルネットワーク実装
 ```
 
-#### 3. 統合ヘッダーパターン
+**3. 統合ヘッダーパターン**
 ```cpp
 // ✅ ハイブリッド統合: include/crlgru/crl_gru.hpp
 #include <crlgru/common.hpp>
@@ -235,11 +232,8 @@ public:
 
 // ライブラリコンポーネント（宣言のみ）
 #include <crlgru/core/fep_gru_cell.hpp>
-
-// 必要に応じてLibTorchリンク
-#ifdef CRLGRU_HAS_TORCH
-// ライブラリ機能利用時
-#endif
+#include <crlgru/core/fep_gru_network.hpp>
+#include <crlgru/core/polar_spatial_attention.hpp>
 ```
 
 ### ✅ 動作確認済み使用例
@@ -252,42 +246,37 @@ public:
 auto params = torch::randn({10}, torch::requires_grad(true));
 std::vector<torch::Tensor> param_list = {params};
 
-auto optimizer_f = crlgru::make_spsa_optimizer<float>(param_list);
-auto optimizer_d = crlgru::make_spsa_optimizer<double>(param_list);
+// ✅ 修正済み: テンプレート引数明示
+auto optimizer_d = std::make_shared<crlgru::SPSAOptimizer<double>>(param_list);
+auto optimizer_f = std::make_shared<crlgru::SPSAOptimizer<float>>(param_list);
 
 // 目的関数の最適化
-auto objective = [&]() -> float {
-    auto target = torch::ones_like(params);
-    return (params - target).pow(2).sum().item<float>();
+auto objective = []() -> double {
+    return 1.0; // 簡単な目的関数
 };
 
-optimizer_f->step(objective, 1);
+optimizer_d->step(objective, 1);
 ```
 
-#### 空間変換（ヘッダーオンリー）
+#### 設定構造体（拡張済み）
 ```cpp
-#include <crlgru/utils/spatial_transforms.hpp>
+#include <crlgru/utils/config_types.hpp>
 
-// 効率的な極座標変換
-auto positions = torch::tensor({{{1.0, 1.0}, {-1.0, -1.0}}});
-auto self_pos = torch::tensor({{0.0, 0.0}});
+// ✅ 拡張済み: FEPGRUNetwork設定
+crlgru::FEPGRUNetworkConfig network_config;
+network_config.layer_sizes = {64, 128, 64};
+network_config.dropout_rate = 0.1;
 
-auto polar_map = crlgru::utils::cartesian_to_polar_map(
-    positions, self_pos, 4, 8, 10.0
-);
-// 結果: [1, 4, 8] テンソル
-```
+// ✅ 新規追加: PolarSpatialAttention設定
+crlgru::PolarSpatialAttentionConfig attention_config;
+attention_config.input_channels = 64;
+attention_config.num_distance_rings = 8;
+attention_config.num_angle_sectors = 16;
 
-#### 数学ユーティリティ（ヘッダーオンリー）
-```cpp
-#include <crlgru/utils/math_utils.hpp>
-
-// 数値安定化関数
-auto tensor = torch::tensor({3.0, 4.0});
-auto normalized = crlgru::utils::safe_normalize(tensor);
-
-auto logits = torch::tensor({1.0, 2.0, 3.0});
-auto softmax = crlgru::utils::stable_softmax(logits, 0);
+// ✅ 新規追加: MetaEvaluator設定
+crlgru::MetaEvaluatorConfig eval_config;
+eval_config.metrics = {"prediction_accuracy", "free_energy"};
+eval_config.adaptive_weights = true;
 ```
 
 ## 開発環境・依存関係（確認済み）
@@ -304,7 +293,7 @@ auto softmax = crlgru::utils::stable_softmax(logits, 0);
 - **ビルドタイプ**: Debug/Release両対応
 - **LibTorch統合**: 有効
 
-### コンパイル・実行手順（確認済み）
+### コンパイル・実行手順（更新版）
 ```bash
 # プロジェクトディレクトリ
 cd /Users/igarashi/local/project_workspace/crlGRU
@@ -317,15 +306,12 @@ g++ -std=c++17 -I./include -I$LIBTORCH_PATH/include \
     -Wl,-rpath,$LIBTORCH_PATH/lib
 
 # テスト用ビルド（ライブラリ含む）
-mkdir -p build_test && cd build_test
+mkdir -p build_test_new && cd build_test_new
 cmake .. -DCMAKE_BUILD_TYPE=Debug
 make -j$(nproc)
 
-# 統合テスト実行
+# 統合テスト実行（ビルド成功後）
 ./tests/test_crlgru
-
-# インストール（$HOME/local/ へ）
-make install
 ```
 
 ### ハイブリッド使用例（軽量版）
@@ -343,7 +329,7 @@ int main() {
 
 ### ハイブリッド使用例（完全版）
 ```cpp
-// 完全機能使用（.dylibリンク必要）
+// 完全機能使用（.dylibリンク必要・ビルド修正後）
 #include <crlgru/crl_gru.hpp>
 
 int main() {
@@ -356,7 +342,9 @@ int main() {
     auto gru_cell = std::make_shared<crlgru::FEPGRUCell>(config);
     
     // ヘッダーオンリー機能も同時使用可能
-    auto optimizer = crlgru::make_spsa_optimizer<double>({});
+    auto params = torch::randn({10}, torch::requires_grad(true));
+    std::vector<torch::Tensor> param_list = {params};
+    auto optimizer = std::make_shared<crlgru::SPSAOptimizer<double>>(param_list);
     
     return 0;
 }
@@ -364,7 +352,34 @@ int main() {
 
 ## プロジェクト固有の開発パターン
 
-### 1. ハイブリッドコンポーネント開発方針
+### 1. Chain-of-Thoughtビルドエラー修正パターン
+```markdown
+## Step 1: エラー分析
+- コンパイルエラーの分類（不完全型、未定義識別子、テンプレート等）
+- 影響範囲の特定（ヘッダー vs 実装）
+
+## Step 2: ヘッダー構造修正
+- 不足ヘッダーファイルの作成
+- フォワード宣言の追加
+- 設定構造体の拡張
+
+## Step 3: 実装ファイル修正
+- ヘッダーとの整合性確保
+- メンバー変数・関数の追加
+- 初期化問題の解決
+
+## Step 4: テストファイル修正
+- 型エイリアスの修正
+- テンプレート引数の明示
+- テスト構造の更新
+
+## Step 5: ビルド確認
+- 段階的ビルド実行
+- エラー修正の確認
+- 統合テスト実行
+```
+
+### 2. ハイブリッドコンポーネント開発方針
 ```cpp
 // 軽量・汎用的機能 → ヘッダーオンリー
 namespace crlgru::utils {
@@ -379,11 +394,12 @@ namespace crlgru::utils {
 namespace crlgru {
     class ComplexNeuralNetwork : public torch::nn::Module {
         // 宣言のみヘッダーに、実装は.cppファイル
+        // ✅ メンバー変数初期化: torch::nn::Linear layer_{nullptr};
     };
 }
 ```
 
-### 2. 数式実装の標準パターン
+### 3. 数式実装の標準パターン
 ```cpp
 // ✅ 実装例: 自由エネルギー計算（ヘッダーオンリー向け）
 template<typename FloatType>
@@ -407,7 +423,7 @@ inline torch::Tensor compute_free_energy_optimized(
 }
 ```
 
-### 3. エラーハンドリング・数値安定性
+### 4. エラーハンドリング・数値安定性
 ```cpp
 // ハイブリッド環境でのエラーハンドリング
 try {
@@ -423,7 +439,7 @@ try {
     std::cerr << "Standard error: " << e.what() << std::endl;
 }
 
-// 前条件チェック（ヘッダーオンリー対応）
+// 前条件チェック（ハイブリッド対応）
 #ifdef CRLGRU_HAS_TORCH
     TORCH_CHECK(input.size(1) == expected_size, "Size mismatch");
 #else
@@ -453,16 +469,16 @@ try {
 
 本プロンプトを読み込んだ上で、以下の方針で開発支援を行ってください：
 
-1. **ハイブリッドアプローチ基盤**: ヘッダーオンリーとライブラリの最適な組み合わせによる開発
+1. **Chain-of-Thoughtビルドエラー修正**: エラー分析→ヘッダー修正→実装修正→テスト修正→確認のステップ化
 2. **実際の構造に基づく開発**: include/crlgru/ の階層構造を反映した開発
 3. **動作確認済み基盤活用**: ヘッダーオンリー部分（11/11テスト成功）を積極活用
-4. **数学的厳密性**: 自由エネルギー原理・SPSA・階層的模倣学習の理論的正確性
+4. **段階的ビルド修正**: 複数ファイルの同時修正ではなく、一つずつ確実に修正
 5. **LibTorch活用**: PyTorch C++ APIの効率的使用とメモリ管理
-6. **段階的機能拡張**: ヘッダーオンリー→ライブラリ→統合の段階的アプローチ
+6. **ハイブリッドアプローチ**: ヘッダーオンリー→ライブラリ→統合の段階的アプローチ
 7. **クロスプラットフォーム**: CMakeによる移植性確保
 8. **実用的解決策**: 理論的正確性と実装可能性・計算効率のバランス
-9. **Chain-of-Thought**: ステップバイステップの段階的開発アプローチ
+9. **数学的厳密性**: 自由エネルギー原理・SPSA・階層的模倣学習の理論的正確性
 
-**完成済みハイブリッド基盤**を活用して、**機能拡張**（新しいヘッダーオンリーコンポーネント、ライブラリコンポーネント拡張）や**性能改善**（並列化、メモリ最適化、数値安定性）を段階的に進める方針です。数式を用いた説明の際は、LaTeX記法を使用し、C++実装との対応も明確にしてください。
+**現在の最優先課題**: attention_evaluator.cppのビルドエラー修正により、完全なライブラリビルド成功を実現する。**完成済みハイブリッド基盤**を活用して、残存するビルドエラーを段階的に解決し、**統合テスト実行**を目指します。数式を用いた説明の際は、LaTeX記法を使用し、C++実装との対応も明確にしてください。
 
 **ステップバイステップ対話でお願いします。**

@@ -21,17 +21,17 @@ private:
     Config config_;
     
     // 標準GRUパラメータ
-    torch::nn::Linear input_to_hidden_;
-    torch::nn::Linear hidden_to_hidden_;
-    torch::nn::Linear input_to_reset_;
-    torch::nn::Linear hidden_to_reset_;
-    torch::nn::Linear input_to_update_;
-    torch::nn::Linear hidden_to_update_;
+    torch::nn::Linear input_to_hidden_{nullptr};
+    torch::nn::Linear hidden_to_hidden_{nullptr};
+    torch::nn::Linear input_to_reset_{nullptr};
+    torch::nn::Linear hidden_to_reset_{nullptr};
+    torch::nn::Linear input_to_update_{nullptr};
+    torch::nn::Linear hidden_to_update_{nullptr};
     
     // FEP特有レイヤー
-    torch::nn::Linear prediction_head_;
-    torch::nn::Linear variance_head_;
-    torch::nn::Linear meta_evaluation_head_;
+    torch::nn::Linear prediction_head_{nullptr};
+    torch::nn::Linear variance_head_{nullptr};
+    torch::nn::Linear meta_evaluation_head_{nullptr};
     
     // 内部状態
     torch::Tensor som_weights_;
@@ -42,6 +42,7 @@ private:
     torch::Tensor free_energy_;
     
     // ピア情報
+    std::unordered_map<int, std::unordered_map<std::string, torch::Tensor>> peer_parameters_;
     std::unordered_map<int, double> peer_performance_;
     std::unordered_map<int, double> peer_trust_;
 
@@ -91,6 +92,10 @@ public:
     /// @brief メタ評価取得
     /// @return メタ評価値
     double get_meta_evaluation() const;
+
+    /// @brief 自由エネルギー取得
+    /// @return 自由エネルギーテンソル
+    torch::Tensor get_free_energy() const { return free_energy_; }
 
     /// @brief 設定取得
     const Config& get_config() const { return config_; }

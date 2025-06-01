@@ -10,7 +10,8 @@
 
 // ライブラリコンポーネント（宣言のみ）
 #include <crlgru/core/fep_gru_cell.hpp>
-// 注意: 他のライブラリコンポーネントのヘッダーも必要に応じて追加
+#include <crlgru/core/fep_gru_network.hpp>
+#include <crlgru/core/polar_spatial_attention.hpp>
 
 // ヘッダーオンリーコンポーネント（実装含む）
 #include <crlgru/utils/config_types.hpp>

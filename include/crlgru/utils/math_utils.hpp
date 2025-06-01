@@ -20,7 +20,7 @@ namespace utils {
 template<typename Scalar = double>
 inline Scalar compute_mutual_information(const torch::Tensor& state1, 
                                         const torch::Tensor& state2,
-                                        int num_bins = 64) {
+                                        int /* num_bins */ = 64) {
     // 入力の正規化
     auto normalized_state1 = (state1 - state1.mean()) / (state1.std() + 1e-8);
     auto normalized_state2 = (state2 - state2.mean()) / (state2.std() + 1e-8);
