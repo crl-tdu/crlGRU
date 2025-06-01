@@ -295,6 +295,15 @@ ls -la $HOME/local/lib/libcrlGRU*
 - **模倣学習**: `hierarchical_imitation_update`の実装拡張
 - **最適化**: `SPSAOptimizer`のパラメータ調整
 
+## 📚 開発者向けドキュメント
+
+プロジェクト開発に参加する場合は、以下のドキュメントを参照してください：
+
+- **[開発ベースラインプロンプト](./docs/DEVELOPMENT_BASELINE_PROMPT.md)**: プロジェクト開発の包括的ガイドライン
+- **[API リファレンス](./docs/API_REFERENCE_JP.md)**: 詳細なAPI仕様書
+- **[使用ガイド](./docs/USAGE_GUIDE_JP.md)**: 実践的な使用方法
+- **[LibTorch インストールガイド](./docs/LIBTORCH_INSTALLATION_GUIDE.md)**: 開発環境構築手順
+
 ## ライセンス・引用
 
 このライブラリを研究で使用する場合は、適切な引用をお願いします。詳細はプロジェクトのライセンスファイルを参照してください。

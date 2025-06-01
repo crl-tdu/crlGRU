@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.18)
 project(crlGRU VERSION 1.0.0 LANGUAGES CXX)
 
 # Set C++ standard
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Set RPATH for installed library
@@ -71,6 +71,8 @@ endif()
 # Tests (includes examples)
 option(BUILD_TESTS "Build test programs and examples" ON)
 if(BUILD_TESTS)
+    # Enable CTest for running tests
+    enable_testing()
     add_subdirectory(tests)
 endif()
 
