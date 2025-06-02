@@ -4,19 +4,20 @@
 /// @file fep_gru_network.hpp
 /// @brief FEPGRUNetwork宣言（ライブラリ実装）
 
-#include <crlgru/common.hpp>
+#include <crlgru/common.h>
 #include <crlgru/utils/config_types.hpp>
 #include <crlgru/core/fep_gru_cell.hpp>
 #include <unordered_map>
 
 namespace crlgru {
+namespace core {
 
 /// @brief 自由エネルギー原理に基づくGRUネットワーク
 /// @details 実装は src/core/fep_gru_network.cpp にあります
 class FEPGRUNetwork : public torch::nn::Module {
 public:
     /// @brief 設定構造体の型エイリアス
-    using NetworkConfig = FEPGRUNetworkConfig;
+    using NetworkConfig = config::FEPGRUNetworkConfig;
 
 private:
     NetworkConfig config_;
@@ -101,6 +102,7 @@ private:
     );
 };
 
+} // namespace core
 } // namespace crlgru
 
 #endif // CRLGRU_CORE_FEP_GRU_NETWORK_HPP

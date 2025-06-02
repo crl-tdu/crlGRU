@@ -1,7 +1,7 @@
-#ifndef CRLGRU_COMMON_HPP
-#define CRLGRU_COMMON_HPP
+#ifndef CRLGRU_COMMON_H
+#define CRLGRU_COMMON_H
 
-/// @file common.hpp
+/// @file common.h
 /// @brief crlGRU ライブラリ共通定義とフォワード宣言
 
 #include <torch/torch.h>
@@ -31,4 +31,4 @@ namespace utils {
 
 } // namespace crlgru
 
-#endif // CRLGRU_COMMON_HPP
+#endif // CRLGRU_COMMON_H

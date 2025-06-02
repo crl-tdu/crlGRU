@@ -1,7 +1,8 @@
-#include "crlgru/crl_gru.hpp"
+#include "crlgru/core/fep_gru_network.hpp"
 #include <algorithm>
 
 namespace crlgru {
+namespace core {
 
 FEPGRUNetwork::FEPGRUNetwork(const NetworkConfig& config) : config_(config) {
     // Create multi-layer FEP-GRU cells
@@ -170,4 +171,5 @@ void FEPGRUNetwork::remove_agent(int agent_id) {
     agent_states_.erase(agent_id);
 }
 
+} // namespace core
 } // namespace crlgru

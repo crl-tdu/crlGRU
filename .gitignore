@@ -1,0 +1,349 @@
+# crlGRU Project .gitignore
+
+# ==========================================
+# Build directories and artifacts
+# ==========================================
+
+# CMake build directories
+build/
+build_*/
+cmake-build-*/
+
+# Build artifacts
+*.a
+*.so
+*.dylib
+*.dll
+*.exe
+*.out
+
+# CMake generated files
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+*.cmake
+!CMakeLists.txt
+!cmake/
+!cmake/*.cmake
+
+# CTest
+Testing/
+CTestTestfile.cmake
+
+# Installation directories
+install/
+dist/
+
+# ==========================================
+# Temporary and cache directories
+# ==========================================
+
+# General temp directories
+tmp/
+temp/
+.tmp/
+cache/
+.cache/
+
+# Library-specific cache
+build_cache/
+*_cache/
+
+# ==========================================
+# IDE and Editor files
+# ==========================================
+
+# Visual Studio Code
+.vscode/
+*.code-workspace
+
+# CLion
+.idea/
+cmake-build-*/
+
+# Visual Studio
+.vs/
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
+*.sln
+*.suo
+*.user
+
+# Xcode
+*.xcodeproj/
+*.xcworkspace/
+DerivedData/
+
+# Qt Creator
+*.pro.user
+*.pro.user.*
+
+# Vim
+*.swp
+*.swo
+*~
+
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+auto-save-list
+tramp
+.\#*
+
+# ==========================================
+# System files
+# ==========================================
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+
+# ==========================================
+# C++ specific
+# ==========================================
+
+# Compiled Object files
+*.o
+*.obj
+*.ko
+*.elf
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Libraries
+*.lib
+*.la
+*.lo
+
+# Shared objects (inc. Windows DLLs)
+*.so.*
+*.dll
+*.dylib
+
+# Executables
+*.exe
+*.out
+*.app
+*.i*86
+*.x86_64
+*.hex
+
+# Debug files
+*.dSYM/
+*.su
+*.idb
+*.pdb
+
+# Core dumps
+core
+core.*
+vgcore.*
+
+# ==========================================
+# Python (for scripts and tools)
+# ==========================================
+
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+.venv/
+
+# ==========================================
+# Documentation build
+# ==========================================
+
+# Doxygen
+doc/html/
+doc/latex/
+doc/xml/
+docs/_build/
+docs/build/
+
+# Sphinx
+docs/_build/
+docs/build/
+
+# ==========================================
+# Testing and Coverage
+# ==========================================
+
+# Test results
+test_results/
+test_reports/
+*.xml
+*.log
+
+# Coverage reports
+coverage/
+*.gcov
+*.gcda
+*.gcno
+*.info
+*.coverage
+
+# Google Test
+gtest/
+googletest/
+
+# ==========================================
+# Package managers and dependencies
+# ==========================================
+
+# vcpkg
+vcpkg_installed/
+.vcpkg-root
+
+# Conan
+conandata.yml
+conanfile.py
+conaninfo.txt
+conanbuildinfo.*
+conan.lock
+
+# ==========================================
+# LibTorch and ML frameworks
+# ==========================================
+
+# PyTorch C++ models
+*.pt
+*.pth
+*.onnx
+
+# TensorBoard logs
+runs/
+logs/
+tensorboard/
+
+# Data files (if any)
+data/
+datasets/
+*.csv
+*.json
+*.hdf5
+*.h5
+
+# ==========================================
+# Project specific
+# ==========================================
+
+# Backup files
+*.bak
+*.backup
+*.orig
+
+# Patch files
+*.patch
+*.diff
+
+# Archive files
+*.tar
+*.tar.gz
+*.zip
+*.rar
+*.7z
+
+# Configuration files (if containing secrets)
+config.json
+secrets.json
+.env
+.env.local
+
+# User-specific configurations
+local_config.*
+user_config.*
+
+# ==========================================
+# Submodule specific
+# ==========================================
+
+# When used as submodule, ignore parent's gitignore conflicts
+# (This section can be customized based on parent project needs)
+
+# Hash files for change detection
+.last_build_hash
+*/.last_build_hash
+
+# ==========================================
+# CI/CD
+# ==========================================
+
+# GitHub Actions
+.github/workflows/*.yml.bak
+
+# Travis CI
+.travis.yml.bak
+
+# Jenkins
+Jenkinsfile.bak
+
+# ==========================================
+# Security and sensitive files
+# ==========================================
+
+# SSH keys
+*.pem
+*.key
+id_rsa*
+id_ed25519*
+
+# Certificates
+*.crt
+*.cert
+*.p12
+*.pfx
+
+# API keys and tokens
+.secrets
+api_keys.txt
+tokens.txt
+
+# ==========================================
+# Performance and profiling
+# ==========================================
+
+# Profiling data
+*.prof
+perf.data*
+callgrind.out.*
+*.trace
+
+# Benchmark results
+benchmark_results/
+*.benchmark
+
+# ==========================================
+# Custom additions
+# ==========================================
+
+# Add any project-specific ignores here
+# Example:
+# custom_scripts/
+# experimental/

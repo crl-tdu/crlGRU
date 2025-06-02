@@ -1,7 +1,9 @@
-#include "crlgru/crl_gru.hpp"
+#include "crlgru/core/polar_spatial_attention.hpp"
 #include <cmath>
 
 namespace crlgru {
+namespace attention {
+
 	PolarSpatialAttention::PolarSpatialAttention(const AttentionConfig& config) : config_(config) {
 		// Distance attention: focuses on radial patterns
 		distance_attention_ = register_module("distance_attention",
@@ -201,4 +203,6 @@ namespace crlgru {
 			weight_history_ = weight_history_.narrow(-1, weight_history_.size(-1) - max_history, max_history);
 		}
 	}
+
+} // namespace attention
 } // namespace crlgru

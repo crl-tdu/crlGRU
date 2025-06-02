@@ -4,7 +4,7 @@
 /// @file spatial_transforms.hpp
 /// @brief 空間変換関数のヘッダーオンリー実装
 
-#include <crlgru/common.hpp>
+#include <crlgru/common.h>
 #include <cmath>
 #include <algorithm>
 

@@ -4,18 +4,19 @@
 /// @file fep_gru_cell.hpp
 /// @brief FEPGRUCell宣言（ライブラリ実装）
 
-#include <crlgru/common.hpp>
+#include <crlgru/common.h>
 #include <crlgru/utils/config_types.hpp>
 #include <unordered_map>
 
 namespace crlgru {
+namespace core {
 
 /// @brief 自由エネルギー原理に基づくGRUセル
 /// @details 実装は src/core/fep_gru_cell.cpp にあります
 class FEPGRUCell : public torch::nn::Module {
 public:
     /// @brief 設定構造体の型エイリアス
-    using Config = FEPGRUCellConfig;
+    using Config = config::FEPGRUCellConfig;
 
 private:
     Config config_;
@@ -111,6 +112,7 @@ private:
     torch::Tensor compute_meta_evaluation(const torch::Tensor& state);
 };
 
+} // namespace core
 } // namespace crlgru
 
 #endif // CRLGRU_CORE_FEP_GRU_CELL_HPP

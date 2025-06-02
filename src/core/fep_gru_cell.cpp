@@ -1,9 +1,10 @@
-#include "crlgru/crl_gru.hpp"
+#include "crlgru/core/fep_gru_cell.hpp"
 #include <cmath>
 #include <random>
 #include <algorithm>
 
 namespace crlgru {
+namespace core {
 
 FEPGRUCell::FEPGRUCell(const Config& config) : config_(config) {
     // Initialize standard GRU layers
@@ -251,4 +252,5 @@ void FEPGRUCell::reset_states() {
     }
 }
 
+} // namespace core
 } // namespace crlgru

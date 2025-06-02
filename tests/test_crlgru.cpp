@@ -6,7 +6,13 @@
 #include <random>
 
 // crlGRU library include
-#include <crlgru/crl_gru.hpp>
+#include <crlgru/utils/config_types.hpp>
+#include <crlgru/utils/math_utils.hpp>
+#include <crlgru/utils/spatial_transforms.hpp>
+#include <crlgru/optimizers/spsa_optimizer.hpp>
+#include <crlgru/core/fep_gru_cell.hpp>
+#include <crlgru/core/fep_gru_network.hpp>
+#include <crlgru/core/polar_spatial_attention.hpp>
 
 class TestRunner {
 private:
@@ -50,22 +56,22 @@ public:
 };
 
 // Global variables for test instances
-std::shared_ptr<crlgru::FEPGRUCell> g_cell;
-std::shared_ptr<crlgru::FEPGRUNetwork> g_network;
-std::shared_ptr<crlgru::SPSAOptimizer<double>> g_optimizer;
-std::shared_ptr<crlgru::PolarSpatialAttention> g_attention;
-std::shared_ptr<crlgru::MetaEvaluator> g_evaluator;
+std::shared_ptr<crlgru::core::FEPGRUCell> g_cell;
+std::shared_ptr<crlgru::core::FEPGRUNetwork> g_network;
+std::shared_ptr<crlgru::optimizers::SPSAOptimizer<double>> g_optimizer;
+std::shared_ptr<crlgru::attention::PolarSpatialAttention> g_attention;
+std::shared_ptr<crlgru::attention::MetaEvaluator> g_evaluator;
 
 // Test functions for each component
 namespace crlgru_tests {
 
     bool test_fep_gru_cell_construction() {
         try {
-            crlgru::FEPGRUCellConfig config;
+            crlgru::config::FEPGRUCellConfig config;
             config.input_size = 10;
             config.hidden_size = 64;
             config.enable_som_extraction = true;
-            g_cell = std::make_shared<crlgru::FEPGRUCell>(config);
+            g_cell = std::make_shared<crlgru::core::FEPGRUCell>(config);
             return g_cell != nullptr;
         } catch (const std::exception& e) {
             std::cerr << "Exception: " << e.what() << std::endl;
@@ -117,9 +123,9 @@ namespace crlgru_tests {
 
     bool test_fep_gru_network_construction() {
         try {
-            crlgru::FEPGRUNetworkConfig config;
+            crlgru::config::FEPGRUNetworkConfig config;
             config.layer_sizes = {64, 128, 64};
-            g_network = std::make_shared<crlgru::FEPGRUNetwork>(config);
+            g_network = std::make_shared<crlgru::core::FEPGRUNetwork>(config);
             return g_network != nullptr;
         } catch (const std::exception& e) {
             std::cerr << "Exception: " << e.what() << std::endl;
@@ -157,12 +163,12 @@ namespace crlgru_tests {
             auto params = torch::randn({10}, torch::requires_grad(true));
             std::vector<torch::Tensor> param_list = {params};
             
-            typename crlgru::SPSAOptimizer<double>::Config config;
+            typename crlgru::optimizers::SPSAOptimizer<double>::Config config;
             config.a = 0.16;
             config.c = 0.16;
             config.learning_rate = 0.01;
             
-            g_optimizer = std::make_shared<crlgru::SPSAOptimizer<double>>(param_list, config);
+            g_optimizer = std::make_shared<crlgru::optimizers::SPSAOptimizer<double>>(param_list, config);
             return g_optimizer != nullptr;
         } catch (const std::exception& e) {
             std::cerr << "Exception: " << e.what() << std::endl;
@@ -256,12 +262,12 @@ namespace crlgru_tests {
 
     bool test_polar_spatial_attention_construction() {
         try {
-            crlgru::PolarSpatialAttentionConfig config;
+            crlgru::config::PolarSpatialAttentionConfig config;
             config.input_channels = 64;
             config.num_distance_rings = 8;
             config.num_angle_sectors = 16;
             
-            g_attention = std::make_shared<crlgru::PolarSpatialAttention>(config);
+            g_attention = std::make_shared<crlgru::attention::PolarSpatialAttention>(config);
             return g_attention != nullptr;
         } catch (const std::exception& e) {
             std::cerr << "Exception: " << e.what() << std::endl;
@@ -287,14 +293,14 @@ namespace crlgru_tests {
     bool test_integration_multi_agent_simulation() {
         try {
             // Create network with proper configuration
-            crlgru::FEPGRUNetworkConfig network_config;
+            crlgru::config::FEPGRUNetworkConfig network_config;
             network_config.layer_sizes = {64, 128, 64};
             
             // Set cell configuration with correct input size
             network_config.cell_config.input_size = 64;  // Match the input sequence features
             network_config.cell_config.hidden_size = 64; // This will be overridden by layer_sizes
             
-            auto brain = std::make_shared<crlgru::FEPGRUNetwork>(network_config);
+            auto brain = std::make_shared<crlgru::core::FEPGRUNetwork>(network_config);
             
             // Simulate steps
             for (int step = 0; step < 5; ++step) {
@@ -316,14 +322,14 @@ namespace crlgru_tests {
     bool test_integration_predictive_coding() {
         try {
             if (!g_network) {
-                crlgru::FEPGRUNetworkConfig config;
+                crlgru::config::FEPGRUNetworkConfig config;
                 config.layer_sizes = {64, 128, 64};
                 
                 // Set cell configuration with correct input size
                 config.cell_config.input_size = 64;  // Match the input sequence features
                 config.cell_config.hidden_size = 64; // This will be overridden by layer_sizes
                 
-                g_network = std::make_shared<crlgru::FEPGRUNetwork>(config);
+                g_network = std::make_shared<crlgru::core::FEPGRUNetwork>(config);
             }
             
             auto sequence = torch::randn({1, 64, 64}); // [batch_size, seq_len, input_size]
@@ -338,11 +344,11 @@ namespace crlgru_tests {
 
     bool test_meta_evaluator_construction() {
         try {
-            crlgru::MetaEvaluatorConfig eval_config;
+            crlgru::config::MetaEvaluatorConfig eval_config;
             eval_config.metrics = {"prediction_accuracy", "free_energy"};
             eval_config.adaptive_weights = true;
             
-            g_evaluator = std::make_shared<crlgru::MetaEvaluator>(eval_config);
+            g_evaluator = std::make_shared<crlgru::attention::MetaEvaluator>(eval_config);
             return g_evaluator != nullptr;
         } catch (const std::exception& e) {
             std::cerr << "Exception: " << e.what() << std::endl;

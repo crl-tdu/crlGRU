@@ -4,17 +4,18 @@
 /// @file polar_spatial_attention.hpp
 /// @brief PolarSpatialAttention宣言（ライブラリ実装）
 
-#include <crlgru/common.hpp>
+#include <crlgru/common.h>
 #include <crlgru/utils/config_types.hpp>
 
 namespace crlgru {
+namespace attention {
 
 /// @brief 極座標空間注意機構
 /// @details 実装は src/core/attention_evaluator.cpp にあります
 class PolarSpatialAttention : public torch::nn::Module {
 public:
     /// @brief 設定構造体の型エイリアス
-    using AttentionConfig = PolarSpatialAttentionConfig;
+    using AttentionConfig = config::PolarSpatialAttentionConfig;
 
 private:
     AttentionConfig config_;
@@ -77,7 +78,7 @@ private:
 class MetaEvaluator {
 public:
     /// @brief 設定構造体の型エイリアス
-    using EvaluationConfig = MetaEvaluatorConfig;
+    using EvaluationConfig = config::MetaEvaluatorConfig;
 
 private:
     EvaluationConfig config_;
@@ -115,6 +116,7 @@ private:
     // （実装で実際に使用されているメソッドのみ）
 };
 
+} // namespace attention
 } // namespace crlgru
 
 #endif // CRLGRU_CORE_POLAR_SPATIAL_ATTENTION_HPP

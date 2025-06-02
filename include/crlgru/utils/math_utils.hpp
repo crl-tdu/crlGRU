@@ -4,7 +4,7 @@
 /// @file math_utils.hpp
 /// @brief 数学関数のヘッダーオンリー実装
 
-#include <crlgru/common.hpp>
+#include <crlgru/common.h>
 #include <cmath>
 #include <algorithm>
 #include <numeric>

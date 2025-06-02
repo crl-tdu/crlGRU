@@ -4,7 +4,7 @@
 /// @file spsa_optimizer.hpp
 /// @brief SPSA最適化器のヘッダーオンリー実装
 
-#include <crlgru/common.hpp>
+#include <crlgru/common.h>
 #include <crlgru/utils/config_types.hpp>
 #include <random>
 #include <cmath>
@@ -12,6 +12,7 @@
 #include <type_traits>
 
 namespace crlgru {
+namespace optimizers {
 
 /// @brief 同時摂動確率近似（SPSA）最適化器
 /// @details 勾配フリー最適化アルゴリズムのテンプレート実装
@@ -125,16 +126,18 @@ public:
             // 元のパラメータ値を保存
             auto original_param = param.clone();
             
-            // 正の方向に摂動を加える（in-place操作を避ける）
-            param.copy_(original_param + ck * perturbation);
+            // 正の方向に摂動を加える（requires_gradテンソルを一時的に置き換え）
+            auto temp_param = original_param + ck * perturbation;
+            parameters_[i] = temp_param.detach().requires_grad_(original_param.requires_grad());
             auto loss_plus = objective_function();
             
-            // 負の方向に摂動を加える（in-place操作を避ける）
-            param.copy_(original_param - ck * perturbation);
+            // 負の方向に摂動を加える（requires_gradテンソルを一時的に置き換え）
+            temp_param = original_param - ck * perturbation;
+            parameters_[i] = temp_param.detach().requires_grad_(original_param.requires_grad());
             auto loss_minus = objective_function();
             
             // 元のパラメータ値に復元
-            param.copy_(original_param);
+            parameters_[i] = original_param;
             
             auto gradient = (loss_plus - loss_minus) / (2.0 * ck) / perturbation;
             gradients.push_back(gradient);
@@ -220,9 +223,10 @@ private:
                 update = step_size * gradient;
             }
 
-            // パラメータ更新のin-place操作を回避
+            // パラメータ更新（in-place操作を完全に回避）
             auto new_param = param - update;
-            param.copy_(torch::clamp(new_param, config_.param_min, config_.param_max));
+            auto clamped_param = torch::clamp(new_param, config_.param_min, config_.param_max);
+            parameters_[i] = clamped_param.detach().requires_grad_(param.requires_grad());
         }
     }
 
@@ -254,6 +258,7 @@ inline std::unique_ptr<SPSAOptimizer<FloatType>> make_spsa_optimizer(
     return std::make_unique<SPSAOptimizer<FloatType>>(parameters, config);
 }
 
+} // namespace optimizers
 } // namespace crlgru
 
 #endif // CRLGRU_OPTIMIZERS_SPSA_OPTIMIZER_HPP

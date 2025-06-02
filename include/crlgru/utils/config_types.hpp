@@ -4,11 +4,12 @@
 /// @file config_types.hpp
 /// @brief 設定構造体のヘッダーオンリー実装
 
-#include <crlgru/common.hpp>
+#include <crlgru/common.h>
 #include <string>
 #include <vector>
 
 namespace crlgru {
+namespace config {
 
 /// @brief FEPGRUCell設定構造体
 struct FEPGRUCellConfig {
@@ -167,6 +168,7 @@ struct SOMConfig {
     } neighborhood_function = GAUSSIAN;
 };
 
+} // namespace config
 } // namespace crlgru
 
 #endif // CRLGRU_UTILS_CONFIG_TYPES_HPP
