@@ -289,11 +289,16 @@ namespace crlgru_tests {
             // Create network with proper configuration
             crlgru::FEPGRUNetworkConfig network_config;
             network_config.layer_sizes = {64, 128, 64};
+            
+            // Set cell configuration with correct input size
+            network_config.cell_config.input_size = 64;  // Match the input sequence features
+            network_config.cell_config.hidden_size = 64; // This will be overridden by layer_sizes
+            
             auto brain = std::make_shared<crlgru::FEPGRUNetwork>(network_config);
             
             // Simulate steps
             for (int step = 0; step < 5; ++step) {
-                auto input_sequence = torch::randn({10, 64}); // [seq_len, input_size]
+                auto input_sequence = torch::randn({1, 10, 64}); // [batch_size, seq_len, input_size]
                 auto [output, prediction, free_energy] = brain->forward(input_sequence);
                 
                 if (!output.defined() || !prediction.defined() || !free_energy.defined()) {
@@ -313,10 +318,15 @@ namespace crlgru_tests {
             if (!g_network) {
                 crlgru::FEPGRUNetworkConfig config;
                 config.layer_sizes = {64, 128, 64};
+                
+                // Set cell configuration with correct input size
+                config.cell_config.input_size = 64;  // Match the input sequence features
+                config.cell_config.hidden_size = 64; // This will be overridden by layer_sizes
+                
                 g_network = std::make_shared<crlgru::FEPGRUNetwork>(config);
             }
             
-            auto sequence = torch::randn({64, 64}); // [seq_len, input_size]
+            auto sequence = torch::randn({1, 64, 64}); // [batch_size, seq_len, input_size]
             auto [output, prediction, free_energy] = g_network->forward(sequence);
             
             return output.defined() && prediction.defined() && free_energy.defined();

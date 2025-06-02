@@ -23,18 +23,37 @@ namespace crlgru {
 	}
 
 	torch::Tensor PolarSpatialAttention::forward(const torch::Tensor& polar_map) {
-		// polar_map shape: [batch_size, channels, num_rings, num_sectors]
-		auto batch_size = polar_map.size(0);
-		auto channels = polar_map.size(1);
-		auto num_rings = polar_map.size(2);
-		auto num_sectors = polar_map.size(3);
+		// Input polar_map can be in two formats:
+		// Format 1: [batch_size, rings, sectors, features] (from test)
+		// Format 2: [batch_size, channels, rings, sectors] (expected by Conv2d)
+		
+		torch::Tensor input_tensor;
+		int batch_size, channels, num_rings, num_sectors;
+		
+		if (polar_map.dim() == 4 && polar_map.size(3) == config_.input_channels) {
+			// Format 1: [batch_size, rings, sectors, features] -> [batch_size, features, rings, sectors]
+			input_tensor = polar_map.permute({0, 3, 1, 2}).contiguous();
+			batch_size = input_tensor.size(0);
+			channels = input_tensor.size(1);
+			num_rings = input_tensor.size(2);
+			num_sectors = input_tensor.size(3);
+		} else if (polar_map.dim() == 4 && polar_map.size(1) == config_.input_channels) {
+			// Format 2: Already in correct format [batch_size, channels, rings, sectors]
+			input_tensor = polar_map;
+			batch_size = input_tensor.size(0);
+			channels = input_tensor.size(1);
+			num_rings = input_tensor.size(2);
+			num_sectors = input_tensor.size(3);
+		} else {
+			throw std::invalid_argument("Unsupported polar_map format. Expected [batch, rings, sectors, channels] or [batch, channels, rings, sectors]");
+		}
 
-		// Compute distance and angle attention weights
-		auto [distance_weights, angle_weights] = compute_attention_weights(polar_map);
+		// Compute distance and angle attention weights using the processed input tensor
+		auto [distance_weights, angle_weights] = compute_attention_weights(input_tensor);
 
-		// Apply attention to the polar map
-		auto attended_distance = polar_map * distance_weights.unsqueeze(1);
-		auto attended_angle = polar_map * angle_weights.unsqueeze(1);
+		// Apply attention to the input tensor
+		auto attended_distance = input_tensor * distance_weights.unsqueeze(1);
+		auto attended_angle = input_tensor * angle_weights.unsqueeze(1);
 
 		// Global average pooling
 		auto distance_pooled = torch::adaptive_avg_pool2d(attended_distance, {1, 1});
@@ -57,7 +76,7 @@ namespace crlgru {
 		auto attention_map = torch::sigmoid(attended_features).unsqueeze(-1).unsqueeze(-1);
 		attention_map = attention_map.expand({batch_size, channels, num_rings, num_sectors});
 
-		return polar_map * attention_map;
+		return input_tensor * attention_map;
 	}
 
 	std::pair<torch::Tensor, torch::Tensor>
