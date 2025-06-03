@@ -1,8 +1,66 @@
-# crlGRU ライブラリ
+# crlGRU ライブラリ - 身体性FEP統合版
 
 ## 📌 概要
 
-crlGRUは、Free Energy Principle (自由エネルギー原理) に基づくGRUニューラルネットワークを実装したC++ライブラリです。マルチエージェントシステムやスワーム知能の研究に特化した機能を提供します。
+crlGRUは、**身体性AI**と**Free Energy Principle (自由エネルギー原理)**を完全統合したC++ライブラリです。従来の仮想環境でのMARLを超越し、**物理制約・センサーノイズ・部分観測性**を考慮した現実的な群制御システムを実現します。
+
+## 🚀 **NEW!** 身体性FEP統合機能
+
+### 🧠 **EmbodiedFEPGRUCell**
+- **物理制約考慮**: 質量・慣性・摩擦を統合したFEP-GRU
+- **顕在性極座標統合**: crlNexus `SoftAssignmentPolarMap`との完全互換
+- **108次元特徴対応**: 既存システムとの無縫統合
+- **微分可能制御**: 端から端まで微分可能な制御システム
+
+### 🗺️ **顕在性極座標マップ統合**
+```cpp
+// crlNexusとの完全統合例
+#include <crlgru/integration/nexus_compatibility.hpp>
+
+crlgru::integration::NexusCompatibilityLayer compatibility;
+crlnexus::swarm::base::SoftAssignmentPolarMap saliency_map;
+
+// 108次元特徴ベクトルの相互変換
+auto conversion_data = compatibility.convert_from_saliency_map(
+    saliency_map, agent_position
+);
+
+// 制御勾配の計算（∂features/∂u）
+auto [grad_ux, grad_uy] = compatibility.compute_control_gradients(
+    embodied_gru_cell, control_input, saliency_map, neighbors
+);
+```
+
+### 🔧 **物理制約レイヤー**
+```cpp
+// 身体性物理制約の例
+crlgru::core::PhysicalConstraintConfig constraint_config;
+constraint_config.mass = 1.0;              // 質量 [kg]
+constraint_config.inertia = 0.1;           // 慣性モーメント [kg⋅m²]
+constraint_config.max_force = 10.0;        // 最大制御力 [N]
+constraint_config.friction_coefficient = 0.1; // 摩擦係数
+
+auto constraint_layer = crlgru::core::create_physical_constraint_layer(constraint_config);
+
+// 物理的に妥当な制御入力の生成
+auto constrained_control = constraint_layer->apply_constraints(
+    raw_control_input, current_physical_state
+);
+```
+
+### 📡 **身体性センサーモデル**
+```cpp
+// リアルなセンサーノイズ・遅延のシミュレーション
+crlgru::integration::EmbodiedSensorConfig sensor_config;
+sensor_config.noise_variance = 0.01;       // ノイズ分散
+sensor_config.measurement_delay = 0.033;   // 30FPS遅延
+sensor_config.enable_kalman_filter = true; // カルマンフィルタ
+
+auto sensor_model = crlgru::integration::create_embodied_sensor_model(sensor_config);
+
+// ノイズ・遅延を含む観測の生成
+auto noisy_observation = sensor_model->simulate_observation(true_state, current_time);
+```
 
 ## 🚀 主な機能
 
