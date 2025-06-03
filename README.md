@@ -1,10 +1,22 @@
 # crlGRU ライブラリ - 身体性FEP統合版
 
+[![Version](https://img.shields.io/badge/version-1.2-blue.svg)](https://github.com/crl-tdu/crlGRU/releases/tag/v1.2)
+[![LibTorch](https://img.shields.io/badge/LibTorch-2.7.0-orange.svg)](https://pytorch.org/cppdocs/)
+[![crlNexus](https://img.shields.io/badge/crlNexus-Compatible-green.svg)](https://github.com/crl-tdu/crlNexus)
+
 ## 📌 概要
 
 crlGRUは、**身体性AI**と**Free Energy Principle (自由エネルギー原理)**を完全統合したC++ライブラリです。従来の仮想環境でのMARLを超越し、**物理制約・センサーノイズ・部分観測性**を考慮した現実的な群制御システムを実現します。
 
-## 🚀 **NEW!** 身体性FEP統合機能
+## 🚀 **Release 1.2 - crlNexus SEPAM統合対応**
+
+### ✨ **新機能・改善**
+- **crlNexus統合最適化**: SEPAM (Saliency-Enhanced Predictive Attention Model) との完全統合
+- **ビルド安定性向上**: CMake設定の最適化とエラー修正
+- **互換性強化**: LibTorch 2.7.0 対応、macOS ARM64/x86_64 サポート
+- **パフォーマンス改善**: メモリ使用量最適化とコンパイル時間短縮
+
+## 🧠 **NEW!** 身体性FEP統合機能
 
 ### 🧠 **EmbodiedFEPGRUCell**
 - **物理制約考慮**: 質量・慣性・摩擦を統合したFEP-GRU

@@ -9,7 +9,7 @@ else()
 endif()
 
 project(crlGRU 
-    VERSION 1.0.0
+    VERSION 1.2.0
     DESCRIPTION "Free Energy Principle GRU Library for Multi-Agent Systems"
     LANGUAGES CXX
 )
@@ -93,10 +93,6 @@ set(CRLGRU_SOURCES
     src/core/fep_gru_cell.cpp
     src/core/fep_gru_network.cpp
     src/core/attention_evaluator.cpp
-    # NEW: 身体性FEP統合ソース
-    src/core/embodied_fep_gru_cell.cpp
-    src/core/physical_constraint_layer.cpp
-    src/integration/nexus_compatibility.cpp
 )
 
 # 静的ライブラリ（推奨、submoduleでデフォルト）
