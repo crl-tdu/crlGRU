@@ -28,8 +28,8 @@ namespace crlgru {
     namespace core {
         class FEPGRUCell;
         class FEPGRUNetwork;
+        class EmbodiedFEPGRUCell;        // NEW: 身体性FEP-GRUセル（基本版実装済み）
         // Future implementations (not yet available):
-        // class EmbodiedFEPGRUCell;        // TODO: 身体性FEP-GRUセル
         // class PhysicalConstraintLayer;   // TODO: 物理制約レイヤー
     }
     

@@ -135,11 +135,11 @@ void FEPGRUCell::hierarchical_imitation_update(int best_peer_id) {
         return; // No information about this peer
     }
     
-    // double trust = peer_trust_[best_peer_id];  // Commented out as it's unused
+    double trust = peer_trust_[best_peer_id];
     double performance_ratio = peer_performance_[best_peer_id] / 
                               (get_meta_evaluation() + 1e-8);
     
-    if (performance_ratio > 1.1) { // Peer performs significantly better
+    if (performance_ratio > 1.1 && trust > 0.7) { // Peer performs significantly better and is trustworthy
         // Level 1: Prediction result imitation (highest level)
 
         // Level 2: Exploration strategy imitation (medium level)

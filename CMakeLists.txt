@@ -69,6 +69,8 @@ target_include_directories(crlGRU_headers INTERFACE
 
 # LibTorch リンク
 if(CRLGRU_HAS_TORCH)
+    # Remove duplicate library entries to fix warning
+    list(REMOVE_DUPLICATES LIBTORCH_LIBRARIES)
     target_link_libraries(crlGRU_headers INTERFACE ${LIBTORCH_LIBRARIES})
     target_compile_definitions(crlGRU_headers INTERFACE CRLGRU_HAS_TORCH)
     if(CRLGRU_MAIN_PROJECT)
@@ -93,6 +95,7 @@ set(CRLGRU_SOURCES
     src/core/fep_gru_cell.cpp
     src/core/fep_gru_network.cpp
     src/core/attention_evaluator.cpp
+    src/core/embodied_fep_gru_cell.cpp
 )
 
 # 静的ライブラリ（推奨、submoduleでデフォルト）

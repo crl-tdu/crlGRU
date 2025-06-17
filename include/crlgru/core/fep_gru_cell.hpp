@@ -102,7 +102,7 @@ public:
     const Config& get_config() const { return config_; }
 
     /// @brief 状態リセット
-    void reset_states();
+    virtual void reset_states();
 
 private:
     /// @brief SOM更新

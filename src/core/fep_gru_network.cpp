@@ -33,7 +33,6 @@ FEPGRUNetwork::FEPGRUNetwork(const NetworkConfig& config) : config_(config) {
 std::tuple<torch::Tensor, torch::Tensor, torch::Tensor>
 FEPGRUNetwork::forward(const torch::Tensor& sequence) {
     // sequence shape: [batch_size, sequence_length, input_size]
-    // auto batch_size = sequence.size(0);  // Commented out as unused
     auto seq_length = sequence.size(1);
     
     std::vector<torch::Tensor> all_hidden_states;
