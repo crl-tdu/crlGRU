@@ -120,8 +120,10 @@ void FEPGRUCell::update_parameters_from_peer(int peer_id,
             if (peer_it != peer_params.end()) {
                 auto peer_param = peer_it->second;
                 if (param_tensor.sizes() == peer_param.sizes()) {
-                    param_tensor.data() = (1.0 - learning_rate) * param_tensor.data() + 
-                                        learning_rate * peer_param.data();
+                    // Use safe tensor operation that preserves computational graph
+                    auto updated_param = (1.0 - learning_rate) * param_tensor + 
+                                        learning_rate * peer_param;
+                    param_tensor.copy_(updated_param);
                 }
             }
         }
@@ -225,14 +227,22 @@ void FEPGRUCell::update_som(const torch::Tensor&) {
     som_activation_history_[bmu_i][bmu_j] += 1.0;
 }
 
-double FEPGRUCell::get_meta_evaluation() const {
-    if (!hidden_state_.defined()) {
+double FEPGRUCell::get_meta_evaluation() {
+    if (!hidden_state_.defined() || !meta_evaluation_head_) {
         return 0.0;
     }
     
-    // Create a non-const copy of the module to call forward
-    auto non_const_this = const_cast<FEPGRUCell*>(this);
-    auto meta_score = non_const_this->meta_evaluation_head_->forward(hidden_state_.mean(0, true));
+    // Use evaluation mode and no grad
+    torch::NoGradGuard no_grad;
+    bool was_training = meta_evaluation_head_->is_training();
+    meta_evaluation_head_->eval();
+    
+    auto input_tensor = hidden_state_.mean(0, true).detach();
+    auto meta_score = meta_evaluation_head_->forward(input_tensor);
+    
+    // Restore training mode
+    meta_evaluation_head_->train(was_training);
+    
     return torch::sigmoid(meta_score).item<double>();
 }
 

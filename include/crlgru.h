@@ -28,8 +28,9 @@ namespace crlgru {
     namespace core {
         class FEPGRUCell;
         class FEPGRUNetwork;
-        class EmbodiedFEPGRUCell;        // NEW: 身体性FEP-GRUセル
-        class PhysicalConstraintLayer;   // NEW: 物理制約レイヤー
+        // Future implementations (not yet available):
+        // class EmbodiedFEPGRUCell;        // TODO: 身体性FEP-GRUセル
+        // class PhysicalConstraintLayer;   // TODO: 物理制約レイヤー
     }
     
     // Attention mechanisms (implemented in src/core/)
@@ -53,12 +54,13 @@ namespace crlgru {
         struct SPSAOptimizerConfig;
     }
     
-    // Integration layer (NEW: crlNexus互換性)
+    // Integration layer (Future implementations)
     namespace integration {
-        class NexusCompatibilityLayer;   // NEW: crlNexus統合レイヤー
-        class EmbodiedSensorModel;       // NEW: 身体性センサーモデル
-        class MultiModalSensorFusion;    // NEW: マルチモーダルセンサー融合
-        class EmbodiedSwarmIntegrator;   // NEW: 統合インターフェース
+        // Future implementations (not yet available):
+        // class NexusCompatibilityLayer;   // TODO: crlNexus統合レイヤー
+        // class EmbodiedSensorModel;       // TODO: 身体性センサーモデル
+        // class MultiModalSensorFusion;    // TODO: マルチモーダルセンサー融合
+        // class EmbodiedSwarmIntegrator;   // TODO: 統合インターフェース
     }
     
     // Version information
@@ -85,16 +87,16 @@ namespace crlgru {
 #include "crlgru/optimizers/spsa_optimizer.hpp"
 #endif
 
-// Embodied FEP integration (NEW: 身体性FEP統合)
-#ifdef CRLGRU_INCLUDE_EMBODIED
-#include "crlgru/core/embodied_fep_gru_cell.hpp"
-#include "crlgru/core/physical_constraint_layer.hpp"
-#include "crlgru/integration/nexus_compatibility.hpp"
-#include "crlgru/integration/embodied_sensors.hpp"
-#endif
+// Embodied FEP integration (Future implementations)
+// #ifdef CRLGRU_INCLUDE_EMBODIED
+// #include "crlgru/core/embodied_fep_gru_cell.hpp"     // TODO: Not implemented
+// #include "crlgru/core/physical_constraint_layer.hpp"  // TODO: Not implemented
+// #include "crlgru/integration/nexus_compatibility.hpp" // TODO: Not implemented
+// #include "crlgru/integration/embodied_sensors.hpp"    // TODO: Not implemented
+// #endif
 
 // Convenience: include everything when no specific flags are set
-#if !defined(CRLGRU_INCLUDE_CORE) && !defined(CRLGRU_INCLUDE_OPTIMIZERS) && !defined(CRLGRU_INCLUDE_UTILS)
+#if !defined(CRLGRU_INCLUDE_CORE) && !defined(CRLGRU_INCLUDE_OPTIMIZERS) && !defined(CRLGRU_INCLUDE_UTILS) && !defined(CRLGRU_HEADER_ONLY)
 #define CRLGRU_INCLUDE_ALL
 #endif
 
@@ -102,6 +104,13 @@ namespace crlgru {
 #include "crlgru/core/fep_gru_cell.hpp"
 #include "crlgru/core/fep_gru_network.hpp"
 #include "crlgru/core/polar_spatial_attention.hpp"
+#include "crlgru/optimizers/spsa_optimizer.hpp"
+#include "crlgru/utils/math_utils.hpp"
+#include "crlgru/utils/spatial_transforms.hpp"
+#endif
+
+// Header-only mode (utilities and optimizers only)
+#ifdef CRLGRU_HEADER_ONLY
 #include "crlgru/optimizers/spsa_optimizer.hpp"
 #include "crlgru/utils/math_utils.hpp"
 #include "crlgru/utils/spatial_transforms.hpp"

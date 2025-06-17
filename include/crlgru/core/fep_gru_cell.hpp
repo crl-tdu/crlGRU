@@ -92,7 +92,7 @@ public:
 
     /// @brief メタ評価取得
     /// @return メタ評価値
-    double get_meta_evaluation() const;
+    double get_meta_evaluation();
 
     /// @brief 自由エネルギー取得
     /// @return 自由エネルギーテンソル

@@ -107,8 +107,8 @@ if(CRLGRU_BUILD_STATIC)
     # RPATH設定（静的ライブラリ用）
     if(CRLGRU_HAS_TORCH AND CRLGRU_MAIN_PROJECT)
         set_target_properties(crlGRU_static PROPERTIES
-            INSTALL_RPATH "$ENV{HOME}/local/lib;$ENV{HOME}/local/libtorch/lib"
-            BUILD_RPATH "$ENV{HOME}/local/lib;$ENV{HOME}/local/libtorch/lib"
+            INSTALL_RPATH_USE_LINK_PATH TRUE
+            BUILD_WITH_INSTALL_RPATH TRUE
         )
     endif()
     
@@ -136,8 +136,8 @@ if(CRLGRU_BUILD_SHARED)
     # RPATH設定（共有ライブラリ用）
     if(CRLGRU_HAS_TORCH AND CRLGRU_MAIN_PROJECT)
         set_target_properties(crlGRU_shared PROPERTIES
-            INSTALL_RPATH "$ENV{HOME}/local/lib;$ENV{HOME}/local/libtorch/lib"
-            BUILD_RPATH "$ENV{HOME}/local/lib;$ENV{HOME}/local/libtorch/lib"
+            INSTALL_RPATH_USE_LINK_PATH TRUE
+            BUILD_WITH_INSTALL_RPATH TRUE
         )
     endif()
     
