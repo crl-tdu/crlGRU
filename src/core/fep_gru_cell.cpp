@@ -87,14 +87,117 @@ FEPGRUCell::forward(const torch::Tensor& input, const torch::Tensor& hidden) {
 torch::Tensor FEPGRUCell::compute_free_energy(const torch::Tensor& prediction, 
                                             const torch::Tensor& target,
                                             const torch::Tensor& variance) const {
-    // Variational free energy: F = KL[q(x)||p(x|y)] + H[p(y)]
-    // Simplified as: prediction error + complexity penalty
+    // Channel-selective free energy computation
+    // ch1 (occupancy): use prediction values with one-sided Gaussian filter
+    // ch2 (radial): use prediction errors
+    // ch3 (tangential): use prediction errors
     
-    auto prediction_error = torch::mean(torch::pow(target - prediction, 2) / variance, -1);
-    auto complexity_penalty = 0.5 * torch::mean(torch::log(variance), -1);
-    auto prior_penalty = config_.variational_beta * torch::mean(torch::pow(prediction, 2), -1);
+    // Extract SPM channels (assuming 108-dim SPM input after 2-dim control)
+    const int spm_start = 2;  // Skip 2-dim control input
+    const int smp_size = 108; // 6x6x3 SPM tensor
+    const int channel_size = 36; // 6x6 per channel
     
-    return config_.free_energy_weight * (prediction_error + complexity_penalty + prior_penalty);
+    if (prediction.size(-1) >= spm_start + smp_size) {
+        // Extract SPM portions
+        auto pred_spm = prediction.slice(-1, spm_start, spm_start + smp_size);
+        auto target_spm = target.slice(-1, spm_start, spm_start + smp_size);
+        auto var_spm = variance.slice(-1, spm_start, spm_start + smp_size);
+        
+        // Split into channels
+        auto pred_ch1 = pred_spm.slice(-1, 0, channel_size);           // Occupancy
+        auto pred_ch2 = pred_spm.slice(-1, channel_size, 2*channel_size); // Radial
+        auto pred_ch3 = pred_spm.slice(-1, 2*channel_size, 3*channel_size); // Tangential
+        
+        auto target_ch1 = target_spm.slice(-1, 0, channel_size);
+        auto target_ch2 = target_spm.slice(-1, channel_size, 2*channel_size);
+        auto target_ch3 = target_spm.slice(-1, 2*channel_size, 3*channel_size);
+        
+        auto var_ch1 = var_spm.slice(-1, 0, channel_size);
+        auto var_ch2 = var_spm.slice(-1, channel_size, 2*channel_size);
+        auto var_ch3 = var_spm.slice(-1, 2*channel_size, 3*channel_size);
+        
+        // ch1: Apply one-sided Gaussian filter to prediction values
+        auto ch1_filtered = apply_one_sided_gaussian_filter(pred_ch1);
+        auto ch1_evaluation = torch::mean(ch1_filtered, -1);
+        
+        // ch2, ch3: Compute prediction errors
+        auto ch2_error = torch::mean(torch::pow(target_ch2 - pred_ch2, 2) / var_ch2, -1);
+        auto ch3_error = torch::mean(torch::pow(target_ch3 - pred_ch3, 2) / var_ch3, -1);
+        
+        // Combined evaluation: ch2_error + ch3_error + ch1_filtered_values
+        auto spm_evaluation = ch2_error + ch3_error + ch1_evaluation;
+        
+        // Handle non-SPM part (control inputs) with standard prediction error
+        auto non_spm_pred = prediction.slice(-1, 0, spm_start);
+        auto non_spm_target = target.slice(-1, 0, spm_start);
+        auto non_spm_var = variance.slice(-1, 0, spm_start);
+        auto control_error = torch::mean(torch::pow(non_spm_target - non_spm_pred, 2) / non_spm_var, -1);
+        
+        // Complexity and prior penalties (applied to full prediction)
+        auto complexity_penalty = 0.5 * torch::mean(torch::log(variance), -1);
+        auto prior_penalty = config_.variational_beta * torch::mean(torch::pow(prediction, 2), -1);
+        
+        // 自由エネルギーのスケーリング（理論的に妥当）
+        auto raw_free_energy = control_error + spm_evaluation + complexity_penalty + prior_penalty;
+        const double fe_scale = 10.0; // 視覚化・制御応答性向上のためのスケール係数
+        return config_.free_energy_weight * fe_scale * raw_free_energy;
+    } else {
+        // Fallback to standard computation for non-SPM inputs
+        auto prediction_error = torch::mean(torch::pow(target - prediction, 2) / variance, -1);
+        auto complexity_penalty = 0.5 * torch::mean(torch::log(variance), -1);
+        auto prior_penalty = config_.variational_beta * torch::mean(torch::pow(prediction, 2), -1);
+        
+        // フォールバック時も同じスケーリングを適用
+        auto raw_free_energy = prediction_error + complexity_penalty + prior_penalty;
+        const double fe_scale = 10.0; // 一貫性のためのスケール係数
+        return config_.free_energy_weight * fe_scale * raw_free_energy;
+    }
+}
+
+torch::Tensor FEPGRUCell::apply_one_sided_gaussian_filter(const torch::Tensor& input) const {
+    // One-sided Gaussian filter for occupancy channel (ch1)
+    // Applies asymmetric filtering to emphasize positive values (obstacles/occupancy)
+    
+    // Parameters for one-sided Gaussian
+    const double sigma = 1.0;  // Standard deviation
+    const double threshold = 0.0;  // Threshold for asymmetric filtering
+    
+    // Create asymmetric Gaussian kernel
+    // For positive values: apply standard Gaussian smoothing
+    // For negative values: apply reduced weight
+    
+    auto positive_mask = (input > threshold).to(input.dtype());
+    auto negative_mask = (input <= threshold).to(input.dtype());
+    
+    // Apply different processing for positive and negative values
+    auto positive_part = input * positive_mask;
+    auto negative_part = input * negative_mask * 0.1;  // Reduced weight for negative values
+    
+    // Combine with Gaussian-like weighting
+    auto gaussian_weight = torch::exp(-0.5 * torch::pow(input / sigma, 2));
+    auto filtered = (positive_part + negative_part) * gaussian_weight;
+    
+    // Apply spatial smoothing if input has spatial structure (6x6 grid)
+    if (input.size(-1) == 36) {  // 6x6 spatial grid
+        // Reshape to 6x6 for spatial filtering
+        auto spatial_input = input.view({-1, 6, 6});
+        
+        // Create 3x3 Gaussian kernel for spatial smoothing
+        auto kernel = torch::tensor({{{0.0625, 0.125, 0.0625},
+                                     {0.125,  0.25,  0.125},
+                                     {0.0625, 0.125, 0.0625}}}, input.options()).unsqueeze(0);
+        
+        // Apply convolution with padding
+        auto padded = torch::nn::functional::pad(spatial_input, 
+            torch::nn::functional::PadFuncOptions({1, 1, 1, 1}).mode(torch::kReflect));
+        auto conv_result = torch::nn::functional::conv2d(padded.unsqueeze(1), kernel, 
+            torch::nn::functional::Conv2dFuncOptions().padding(0));
+        
+        // Flatten back to original shape
+        filtered = conv_result.squeeze(1).view(input.sizes());
+    }
+    
+    return filtered;
 }
 
 void FEPGRUCell::update_parameters_from_peer(int peer_id, 

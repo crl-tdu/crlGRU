@@ -110,6 +110,11 @@ private:
     
     /// @brief メタ評価計算
     torch::Tensor compute_meta_evaluation(const torch::Tensor& state);
+    
+    /// @brief 片側ガウスフィルタ適用
+    /// @param input 入力テンソル（占有密度チャンネル用）
+    /// @return フィルタ済みテンソル
+    torch::Tensor apply_one_sided_gaussian_filter(const torch::Tensor& input) const;
 };
 
 } // namespace core
